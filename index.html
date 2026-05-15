@@ -328,7 +328,7 @@
   <div class="content">
     <div class="forecast-notice">
       <div class="notice-title">🔭 날씨 예보 안내</div>
-      <p>날씨 예보는 <strong>오늘부터 최대 16일 이내</strong>의 날짜만 조회 가능합니다.</p>
+      <p>날씨 예보는 <strong>오늘부터 최대 10일 이내</strong>의 날짜만 조회 가능합니다.</p>
       <div class="kma-provider-center">기상청 제공</div>
       <span class="forecast-source-badge">기상청 공공데이터 기반</span>
     </div>
@@ -409,6 +409,10 @@ const KMA_SERVICE_KEY = 'db37b0e016c17916a73f8ac3e66b66c6fdd4a2af8f85992654c9712
 // 화곡동 인근 기상청 격자 좌표
 const KMA_NX = 57;
 const KMA_NY = 126;
+
+// 중기예보 지역 코드 (화곡동 = 서울)
+const KMA_MID_LAND_REGION = '11B00000';  // 서울·인천·경기 (육상예보)
+const KMA_MID_TA_REGION = '11B10101';     // 서울 (기온예보)
 
 // 기본값: 오늘
 document.getElementById('moveDate').valueAsDate = new Date();
@@ -570,6 +574,101 @@ async function fetchKmaForecast(dateStr) {
   };
 }
 
+// 중기예보 발표시각 계산 (매일 06:00, 18:00 발표)
+function getKmaMidBaseDateTime() {
+  const now = new Date();
+  // 발표 후 30분 여유
+  const available = new Date(now.getTime() - 30 * 60 * 1000);
+  const hh = available.getHours();
+  
+  if (hh >= 18) {
+    return formatKmaDate(available) + '1800';
+  } else if (hh >= 6) {
+    return formatKmaDate(available) + '0600';
+  } else {
+    // 새벽엔 전날 18시 발표 사용
+    const yesterday = new Date(available);
+    yesterday.setDate(yesterday.getDate() - 1);
+    return formatKmaDate(yesterday) + '1800';
+  }
+}
+
+// 중기예보 날씨 텍스트 → 아이콘/설명
+function parseMidLandWeather(wfText) {
+  if (!wfText) return { icon: '🌤️', desc: '예보 없음' };
+  const t = String(wfText);
+  if (t.includes('번개')) return { icon: '⛈️', desc: '천둥번개' };
+  if (t.includes('눈')) return { icon: '❄️', desc: '눈' };
+  if (t.includes('비')) return { icon: '🌧️', desc: '비' };
+  if (t.includes('흐림')) return { icon: '☁️', desc: '흐림' };
+  if (t.includes('구름많')) return { icon: '⛅', desc: '구름 많음' };
+  if (t.includes('맑음')) return { icon: '☀️', desc: '맑음' };
+  return { icon: '🌤️', desc: t };
+}
+
+async function fetchKmaMidForecast(dateStr, daysAhead) {
+  if (!KMA_SERVICE_KEY || KMA_SERVICE_KEY.includes('붙여넣기')) {
+    throw new Error('KMA_SERVICE_KEY_MISSING');
+  }
+  
+  const tmFc = getKmaMidBaseDateTime();
+  
+  // 육상예보 (강수확률 + 하늘상태)
+  const landUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst` +
+    `?serviceKey=${KMA_SERVICE_KEY}` +
+    `&numOfRows=10&pageNo=1&dataType=JSON` +
+    `&regId=${KMA_MID_LAND_REGION}` +
+    `&tmFc=${tmFc}`;
+  
+  // 기온예보 (최저/최고)
+  const taUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa` +
+    `?serviceKey=${KMA_SERVICE_KEY}` +
+    `&numOfRows=10&pageNo=1&dataType=JSON` +
+    `&regId=${KMA_MID_TA_REGION}` +
+    `&tmFc=${tmFc}`;
+  
+  const [landRes, taRes] = await Promise.all([fetch(landUrl), fetch(taUrl)]);
+  const [landData, taData] = await Promise.all([landRes.json(), taRes.json()]);
+  
+  const landItem = landData?.response?.body?.items?.item?.[0];
+  const taItem = taData?.response?.body?.items?.item?.[0];
+  
+  if (!landItem || !taItem) {
+    throw new Error('KMA_NO_DATA_FOR_DATE');
+  }
+  
+  // 4~10일차에 해당하는 필드명
+  // wf3Am, wf3Pm ... wf10 / rnSt3Am, rnSt3Pm ... rnSt10 / taMin3 ... taMin10 / taMax3 ... taMax10
+  const d = daysAhead;
+  
+  let wf, rnSt;
+  if (d <= 7) {
+    // 4~7일차: 오전/오후 따로 → 오후값 우선
+    wf = landItem[`wf${d}Pm`] || landItem[`wf${d}Am`];
+    rnSt = Math.max(
+      Number(landItem[`rnSt${d}Am`]) || 0,
+      Number(landItem[`rnSt${d}Pm`]) || 0
+    );
+  } else {
+    // 8~10일차: 통합
+    wf = landItem[`wf${d}`];
+    rnSt = Number(landItem[`rnSt${d}`]) || 0;
+  }
+  
+  const tmin = Number(taItem[`taMin${d}`]);
+  const tmax = Number(taItem[`taMax${d}`]);
+  
+  const weatherInfo = parseMidLandWeather(wf);
+  
+  return {
+    icon: weatherInfo.icon,
+    desc: weatherInfo.desc,
+    tmin: Number.isFinite(tmin) ? tmin : null,
+    tmax: Number.isFinite(tmax) ? tmax : null,
+    rain: rnSt
+  };
+}
+
 async function checkDate() {
   const dateStr = document.getElementById('moveDate').value;
   if (!dateStr) return;
@@ -615,12 +714,21 @@ async function checkDate() {
 
     if (daysAhead < 0) {
       resetWeatherDisplay('📅', '--', '과거 날짜', '-', '-', '-');
-    } else if (daysAhead > 15) {
-      resetWeatherDisplay('🔮', '--', '16일 이후는 예보 불가', '-', '-', '-');
+    } else if (daysAhead > 10) {
+      resetWeatherDisplay('🔮', '--', '10일 이후는 예보 불가', '-', '-', '-');
     } else if (daysAhead > 3) {
-      // 단기예보 이후 구간: 중기예보 API 연결 위치
-      // 중기예보 코드를 연결하면 이 구간에서 fetchKmaMidForecast(dateStr)를 호출하면 됩니다.
-      resetWeatherDisplay('🔮', '--', '중기예보 연결 필요', '-', '-', '-');
+      // 중기예보 구간 (4~10일)
+      const weather = await fetchKmaMidForecast(dateStr, daysAhead);
+      const tempText = (weather.tmin !== null && weather.tmax !== null)
+        ? `${weather.tmin}° ~ ${weather.tmax}°`
+        : '--°';
+
+      document.getElementById('weatherIcon').textContent = weather.icon;
+      document.getElementById('weatherTemp').textContent = tempText;
+      document.getElementById('weatherDesc').textContent = weather.desc;
+      document.getElementById('weatherRain').textContent = `${weather.rain}%`;
+      document.getElementById('weatherMin').textContent = weather.tmin !== null ? `${weather.tmin}°` : '-';
+      document.getElementById('weatherMax').textContent = weather.tmax !== null ? `${weather.tmax}°` : '-';
     } else {
       const weather = await fetchKmaForecast(dateStr);
       const tempText = (weather.tmin !== null && weather.tmax !== null)
