@@ -230,6 +230,49 @@
     font-size: 14px;
   }
   
+
+  .forecast-notice {
+    background: #fff7e6;
+    border: 2px solid #d4a73a;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    color: #0d1f3c;
+  }
+  .forecast-notice .notice-title {
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .forecast-notice p {
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .kma-provider-center {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: #0d1f3c;
+    margin: 10px 0 8px;
+  }
+  .forecast-source-badge {
+    display: inline-block;
+    background: #0d1f3c;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .medium-forecast-note {
+    margin-top: 6px;
+    margin-bottom: 0 !important;
+    font-size: 12px !important;
+    color: #35445f;
+  }
+
   .info-box {
     background: #eaf4ff;
     border-left: 3px solid #1565c0;
@@ -283,6 +326,13 @@
   </div>
   
   <div class="content">
+    <div class="forecast-notice">
+      <div class="notice-title">🔭 날씨 예보 안내</div>
+      <p>날씨 예보는 <strong>오늘부터 최대 16일 이내</strong>의 날짜만 조회 가능합니다.</p>
+      <div class="kma-provider-center">기상청 제공</div>
+      <span class="forecast-source-badge">기상청 공공데이터 기반</span>
+    </div>
+    
     <div class="date-input-section">
       <label>📆 이사 예정 날짜 선택</label>
       <div class="date-input-wrapper">
@@ -335,7 +385,7 @@
       
       <div class="info-box">
         📌 <strong>손없는날</strong>: 음력 9·10·19·20·29·30일은 귀신이 활동하지 않는다는 전통 길일로, 이사·개업 등에 선호됩니다.<br>
-        📌 기상청 단기예보는 <strong>오늘부터 글피 전후</strong>까지 확인 가능합니다.
+        📌 <strong>중기예보</strong>: 단기예보 이후 향후 11일까지의 기상전망, 육상·해상 날씨, 최고·최저기온, 파고를 오전/오후로 나누어 발표하며, 8~10일은 하루 단위로 제공됩니다.
       </div>
       
       <a href="https://arttoy61-png.github.io/rent-check/" class="cta-banner">
@@ -346,7 +396,7 @@
   </div>
   
   <div class="footer">
-    화곡동 실거래 분석 · <strong>Rent Check 강서</strong> · 기상청 단기예보 API
+    화곡동 실거래 분석 · <strong>Rent Check 강서</strong> · 기상청 제공
   </div>
 </div>
 
