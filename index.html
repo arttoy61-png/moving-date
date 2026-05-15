@@ -615,7 +615,7 @@ async function checkDate() {
 
     if (daysAhead < 0) {
       resetWeatherDisplay('📅', '--', '과거 날짜', '-', '-', '-');
-    } else if (daysAhead > 3) {
+    } else if (daysAhead > 15) {
       resetWeatherDisplay('🔮', '--', '기상청 단기예보 범위 밖', '-', '-', '-');
     } else {
       const weather = await fetchKmaForecast(dateStr);
