@@ -605,7 +605,7 @@ async function checkDate() {
     }
   }
   
-  // 날씨 API 호출 (기상청 단기예보)
+  // 날씨 API 호출 (기상청 단기예보 + 중기예보 확장 구간)
   try {
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -616,7 +616,11 @@ async function checkDate() {
     if (daysAhead < 0) {
       resetWeatherDisplay('📅', '--', '과거 날짜', '-', '-', '-');
     } else if (daysAhead > 15) {
-      resetWeatherDisplay('🔮', '--', '기상청 단기예보 범위 밖', '-', '-', '-');
+      resetWeatherDisplay('🔮', '--', '16일 이후는 예보 불가', '-', '-', '-');
+    } else if (daysAhead > 3) {
+      // 단기예보 이후 구간: 중기예보 API 연결 위치
+      // 중기예보 코드를 연결하면 이 구간에서 fetchKmaMidForecast(dateStr)를 호출하면 됩니다.
+      resetWeatherDisplay('🔮', '--', '중기예보 연결 필요', '-', '-', '-');
     } else {
       const weather = await fetchKmaForecast(dateStr);
       const tempText = (weather.tmin !== null && weather.tmax !== null)
