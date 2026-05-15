@@ -615,14 +615,14 @@ async function fetchKmaMidForecast(dateStr, daysAhead) {
   
   // 육상예보 (강수확률 + 하늘상태)
   const landUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst` +
-    `?serviceKey=${KMA_SERVICE_KEY}` +
+    `?serviceKey=${encodeURIComponent(KMA_SERVICE_KEY)}` +
     `&numOfRows=10&pageNo=1&dataType=JSON` +
     `&regId=${KMA_MID_LAND_REGION}` +
     `&tmFc=${tmFc}`;
   
   // 기온예보 (최저/최고)
   const taUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa` +
-    `?serviceKey=${KMA_SERVICE_KEY}` +
+    `?serviceKey=${encodeURIComponent(KMA_SERVICE_KEY)}` +
     `&numOfRows=10&pageNo=1&dataType=JSON` +
     `&regId=${KMA_MID_TA_REGION}` +
     `&tmFc=${tmFc}`;
