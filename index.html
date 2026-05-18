@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>이사날 체크 - 화곡동 | Rent Check 강서</title>
+<title>이사날 체크 - 화곡동 | 렌트체크강서</title>
+<meta name="description" content="화곡동 이사 예정일 + 날씨 예보 + 손없는날 한 번에 확인. 기상청 공공데이터 기반.">
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,6 +30,14 @@
     color: #fff;
     padding: 24px 20px;
     text-align: center;
+    position: relative;
+  }
+  .header .brand-line {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #d4a73a;
+    margin-bottom: 4px;
+    opacity: 0.9;
   }
   .header .badge {
     display: inline-block;
@@ -49,6 +58,23 @@
   .header p {
     font-size: 13px;
     opacity: 0.8;
+    margin-bottom: 12px;
+  }
+  .header .owner-info {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(255,255,255,.12);
+    border-radius: 14px;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,.18);
+  }
+  .header .owner-info a {
+    color: #d4a73a;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .header .owner-info a:hover {
+    text-decoration: underline;
   }
   .content {
     padding: 24px 20px;
@@ -286,11 +312,33 @@
   
   .footer {
     background: #f8f9fb;
-    padding: 12px;
+    padding: 18px 16px;
     text-align: center;
     font-size: 11px;
     color: #999;
     border-top: 1px solid #e0e4ea;
+    line-height: 1.7;
+  }
+  .footer .footer-main {
+    margin-bottom: 8px;
+    color: #666;
+  }
+  .footer .footer-main a {
+    color: #1565c0;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .footer .footer-main a:hover {
+    text-decoration: underline;
+  }
+  .footer .footer-divider {
+    height: 1px;
+    background: #e0e4ea;
+    margin: 10px 0;
+  }
+  .footer .footer-bottom {
+    color: #aaa;
+    font-size: 10px;
   }
   .footer strong { color: #1565c0; }
   
@@ -320,9 +368,13 @@
 <body>
 <div class="container">
   <div class="header">
+    <div class="brand-line">MOVING DATE · by 렌트체크강서</div>
     <span class="badge">📅 화곡동 이사날 체크</span>
     <h1>이사 날짜 + 날씨 + 손없는날</h1>
     <p>최적의 이사일을 한 번에 확인하세요</p>
+    <div class="owner-info">
+      📍 운영: <a href="https://blog.naver.com/spitoon61" target="_blank" rel="noopener">렌트체크강서 블로그</a>
+    </div>
   </div>
   
   <div class="content">
@@ -396,14 +448,21 @@
   </div>
   
   <div class="footer">
-    화곡동 실거래 분석 · <strong>Rent Check 강서</strong> · 기상청 제공
+    <div class="footer-main">
+      📍 본 위젯은 <a href="https://blog.naver.com/spitoon61" target="_blank" rel="noopener"><strong>렌트체크강서</strong></a> 블로그 부속 도구입니다.
+    </div>
+    <div class="footer-main">
+      기상청 공공데이터 기반 · 무료 · 회원가입 불필요
+    </div>
+    <div class="footer-divider"></div>
+    <div class="footer-bottom">
+      © 렌트체크강서 · blog.naver.com/spitoon61
+    </div>
   </div>
 </div>
 
 <script>
 // 기상청 단기예보 API 설정
-// 1) 공공데이터포털에서 받은 '인코딩 인증키'를 아래 따옴표 안에 붙여넣으세요.
-// 2) GitHub Pages에 올리면 이 키는 공개됩니다.
 const KMA_SERVICE_KEY = 'db37b0e016c17916a73f8ac3e66b66c6fdd4a2af8f85992654c9712b93298202';
 
 // 화곡동 인근 기상청 격자 좌표
@@ -451,7 +510,6 @@ function formatKmaDate(date) {
 
 function getKmaBaseDateTime() {
   const now = new Date();
-  // 발표 직후 바로 조회하면 자료가 없을 수 있어 20분 여유를 둠
   const available = new Date(now.getTime() - 20 * 60 * 1000);
   const hhmm = String(available.getHours()).padStart(2, '0') + String(available.getMinutes()).padStart(2, '0');
   const baseTimes = ['0200', '0500', '0800', '1100', '1400', '1700', '2000', '2300'];
@@ -462,7 +520,6 @@ function getKmaBaseDateTime() {
     }
   }
 
-  // 새벽 00~01시대는 전날 23시 발표자료 사용
   const yesterday = new Date(available);
   yesterday.setDate(yesterday.getDate() - 1);
   return { baseDate: formatKmaDate(yesterday), baseTime: '2300' };
@@ -553,7 +610,6 @@ async function fetchKmaForecast(dateStr) {
   let tmin = tmnItem ? Math.round(Number(tmnItem.fcstValue)) : null;
   let tmax = tmxItem ? Math.round(Number(tmxItem.fcstValue)) : null;
 
-  // 오늘 날짜 등에서 TMN/TMX가 없으면 시간별 TMP로 보완
   if ((tmin === null || Number.isNaN(tmin)) && tmpItems.length > 0) tmin = Math.round(Math.min(...tmpItems));
   if ((tmax === null || Number.isNaN(tmax)) && tmpItems.length > 0) tmax = Math.round(Math.max(...tmpItems));
 
@@ -574,10 +630,8 @@ async function fetchKmaForecast(dateStr) {
   };
 }
 
-// 중기예보 발표시각 계산 (매일 06:00, 18:00 발표)
 function getKmaMidBaseDateTime() {
   const now = new Date();
-  // 발표 후 30분 여유
   const available = new Date(now.getTime() - 30 * 60 * 1000);
   const hh = available.getHours();
   
@@ -586,14 +640,12 @@ function getKmaMidBaseDateTime() {
   } else if (hh >= 6) {
     return formatKmaDate(available) + '0600';
   } else {
-    // 새벽엔 전날 18시 발표 사용
     const yesterday = new Date(available);
     yesterday.setDate(yesterday.getDate() - 1);
     return formatKmaDate(yesterday) + '1800';
   }
 }
 
-// 중기예보 날씨 텍스트 → 아이콘/설명
 function parseMidLandWeather(wfText) {
   if (!wfText) return { icon: '🌤️', desc: '예보 없음' };
   const t = String(wfText);
@@ -613,14 +665,12 @@ async function fetchKmaMidForecast(dateStr, daysAhead) {
   
   const tmFc = getKmaMidBaseDateTime();
   
-  // 육상예보 (강수확률 + 하늘상태)
   const landUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst` +
     `?serviceKey=${encodeURIComponent(KMA_SERVICE_KEY)}` +
     `&numOfRows=10&pageNo=1&dataType=JSON` +
     `&regId=${KMA_MID_LAND_REGION}` +
     `&tmFc=${tmFc}`;
   
-  // 기온예보 (최저/최고)
   const taUrl = `https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa` +
     `?serviceKey=${encodeURIComponent(KMA_SERVICE_KEY)}` +
     `&numOfRows=10&pageNo=1&dataType=JSON` +
@@ -637,20 +687,16 @@ async function fetchKmaMidForecast(dateStr, daysAhead) {
     throw new Error('KMA_NO_DATA_FOR_DATE');
   }
   
-  // 4~10일차에 해당하는 필드명
-  // wf3Am, wf3Pm ... wf10 / rnSt3Am, rnSt3Pm ... rnSt10 / taMin3 ... taMin10 / taMax3 ... taMax10
   const d = daysAhead;
   
   let wf, rnSt;
   if (d <= 7) {
-    // 4~7일차: 오전/오후 따로 → 오후값 우선
     wf = landItem[`wf${d}Pm`] || landItem[`wf${d}Am`];
     rnSt = Math.max(
       Number(landItem[`rnSt${d}Am`]) || 0,
       Number(landItem[`rnSt${d}Pm`]) || 0
     );
   } else {
-    // 8~10일차: 통합
     wf = landItem[`wf${d}`];
     rnSt = Number(landItem[`rnSt${d}`]) || 0;
   }
@@ -686,11 +732,9 @@ async function checkDate() {
   const dayNames = ['일','월','화','수','목','금','토'];
   const dayName = dayNames[date.getDay()];
   
-  // 날짜 표시
   document.getElementById('resultDate').textContent = `${year}년 ${month}월 ${day}일`;
   document.getElementById('resultDay').textContent = `${dayName}요일`;
   
-  // 정확한 음력 계산
   const lunar = getLunarDay(year, month, day);
   if (lunar) {
     document.getElementById('resultLunar').textContent = 
@@ -704,7 +748,6 @@ async function checkDate() {
     }
   }
   
-  // 날씨 API 호출 (기상청 단기예보 + 중기예보 확장 구간)
   try {
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -717,7 +760,6 @@ async function checkDate() {
     } else if (daysAhead > 10) {
       resetWeatherDisplay('🔮', '--', '10일 이후는 예보 불가', '-', '-', '-');
     } else if (daysAhead > 3) {
-      // 중기예보 구간 (4~10일)
       const weather = await fetchKmaMidForecast(dateStr, daysAhead);
       const tempText = (weather.tmin !== null && weather.tmax !== null)
         ? `${weather.tmin}° ~ ${weather.tmax}°`
@@ -752,7 +794,6 @@ async function checkDate() {
       resetWeatherDisplay('⚠️', '--', '기상청 예보 오류', '-', '-', '-');
     }
   }  
-  // 이번 달 + 다음 달 손없는날 추천
   showAltDates(year, month);
   
   loadingEl.style.display = 'none';
@@ -768,7 +809,6 @@ function showAltDates(year, month) {
   
   let found = [];
   
-  // 이번 달 + 다음 달까지 손없는날 찾기
   for (let monthOffset = 0; monthOffset < 2; monthOffset++) {
     let targetMonth = month + monthOffset;
     let targetYear = year;
@@ -806,9 +846,7 @@ function showAltDates(year, month) {
   }
 }
 
-// 페이지 로드 시 자동 실행
 window.addEventListener('load', () => {
-  // lunar-javascript 로드 대기
   setTimeout(checkDate, 100);
 });
 </script>
