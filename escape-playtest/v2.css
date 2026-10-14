@@ -52,3 +52,58 @@ body:not(.overlay-locked) .opening-sound{display:none}
 }
 @media(max-width:680px) and (max-height:700px){.headline{display:none}.room-topline{display:none}.cinematic-copy{margin-top:29svh}.prologue-copy{margin-top:25svh}.prologue-copy h2{font-size:32px}.prologue-copy p{font-size:16px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+/* V2.2: purpose-made portrait scenes and anchored mobile puzzle controls. */
+.portrait-art{display:none}
+@media(max-width:680px){
+ html,body{overscroll-behavior:none}
+ .game-shell{height:calc(100dvh - 68px - env(safe-area-inset-bottom));min-height:0;padding:0 10px!important}
+ .topbar{min-height:42px;height:42px}.brand-text small{display:none}
+ .headline,.room-topline{display:none!important}
+ .mission-bar{margin-top:6px;min-height:68px;padding:8px 12px}.mission-label{font-size:10px}.mission-copy strong{font-size:14px}
+ .game-layout{margin-top:8px}.room-column{gap:6px}
+ .scene-viewport{order:1;min-height:120px;border-radius:12px;isolation:isolate}
+ .scene-canvas{min-height:120px!important}
+ .scene-canvas .room-art{visibility:hidden}
+ .portrait-art{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+ body.escaped .portrait-art{display:none}body.escaped .scene-canvas .room-art{visibility:visible}
+ .hotspot{top:var(--mobile-y,var(--y));left:var(--mobile-x);gap:5px;min-width:72px;min-height:64px}
+ .hotspot-label{border-radius:6px;font-size:14px;background:#0b1c22ed;padding:7px 10px}
+ .hotspot-ring{background:#172a30c9}
+ .mobile-room-nav{order:3;gap:7px;margin:0;flex-shrink:0}.mobile-zone-btn{height:48px;border-radius:8px;font-size:14px;flex-direction:row;gap:8px}.mobile-zone-btn span{font-size:11px}
+ .narration{order:2;min-height:38px!important;height:38px;margin:0;padding:0 4px;border:none;align-items:center;overflow:auto}
+ .narration p{font:13px/1.45 var(--sans);color:#c3cec7}
+ .mobile-dock{height:calc(64px + env(safe-area-inset-bottom));padding-top:2px;box-shadow:none}
+ .mobile-dock button{min-height:52px}.mobile-dock button span{font-size:22px}
+ .sidebar{bottom:calc(69px + env(safe-area-inset-bottom));border-radius:16px 16px 8px 8px;max-height:65dvh}
+ .modal-shade{align-items:end;padding:0;background:#020a10b8}
+ .modal-panel{width:100%;max-width:100%;max-height:calc(100dvh - 12px);padding:16px 16px calc(12px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0;box-shadow:0 -10px 60px #0008;display:flex;flex-direction:column;overflow:hidden;border-bottom:0}
+ .dialog-heading{position:relative;flex:none;padding-right:44px;padding-bottom:8px;border-bottom:1px solid #53645a}
+ .dialog-heading .modal-close{position:absolute;float:none;top:-3px;right:-5px;margin:0;width:44px;height:44px;border-radius:50%}
+ .dialog-heading .modal-kicker{font-size:10px;padding-right:0}
+ .dialog-heading h2{font-size:24px;margin:4px 0 0;padding:0;line-height:1.3}
+ .modal-body{overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1 1 auto;padding:6px 0;scrollbar-width:thin}
+ .modal-body p{font-size:15px;line-height:1.65}
+ .action-row{flex:none;margin-top:8px;gap:8px;padding-top:8px;border-top:1px solid #53645a}
+ .action-row button{min-height:48px;word-break:keep-all;line-height:1.4;font-size:15px;padding:9px 12px}
+ .puzzle-controls{flex:none;padding-top:5px}
+ .code-panel{height:min(720px,calc(100dvh - 12px))}
+ .code-panel .modal-body{min-height:48px}
+ .code-panel .modal-body>p{margin:2px 0 6px}
+ .evidence-peek{margin:4px 0;padding:6px 10px}
+ .evidence-peek summary{min-height:40px;line-height:1.5;display:flex;align-items:center;font-size:14px}
+ .evidence-peek summary:before{content:'▸';margin-right:8px}.evidence-peek[open] summary:before{content:'▾'}
+ .keypad-screen{width:100%;font-size:28px;height:46px;margin:3px 0 8px;padding:8px}
+ .keypad{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0}
+ .keypad button{height:48px;min-width:0;border-radius:7px;font-size:20px}
+ .puzzle-feedback{font-size:13px;line-height:1.4;min-height:20px;margin:6px 0 0}
+ .archive-card{min-height:110px}.archive-cards{gap:8px;margin:10px 0}.archive-card span{font-size:14px}
+ .toast{bottom:calc(126px + env(safe-area-inset-bottom));max-width:90vw;font-size:13px}
+}
+@media(max-width:680px) and (max-height:620px){
+ .topbar{min-height:38px;height:38px}.mission-bar{min-height:60px;margin-top:3px}
+ .mobile-zone-btn{height:44px}.room-column{gap:4px}.narration{height:32px;min-height:32px!important}
+ .modal-panel{padding:12px 12px calc(8px + env(safe-area-inset-bottom))}.dialog-heading h2{font-size:21px}
+ .keypad button{height:44px}.keypad{gap:5px}.keypad-screen{height:40px;font-size:25px;margin:3px 0 5px;padding:6px}
+ .action-row{margin-top:5px;padding-top:5px}.puzzle-feedback{font-size:12px}
+}

@@ -29,3 +29,7 @@ Browser tests exercise real clicks from a fresh start to escape, wrong inputs, i
 `assets/cover.webp`, `corridor.webp`, `sealed.webp`: new built-in imagegen artwork, 2026-10-14; production prompts delivered separately.
 `room.webp`, `yuri.webp`, `items.webp`, `ending.webp`: existing project Higgsfield artwork, downloaded from the original URLs and decoded before WebP export.
 No generated image contains puzzle-critical text. All clues are accessible HTML.
+
+## Portrait Edition 2.2
+
+Dedicated 1024x1536 mobile scene artwork for desk, records and exit. Zone navigation sits directly below the room. Mobile clue dialogs use a bottom sheet with independently scrolling evidence and anchored numeric keypad/action controls. Existing V2.1 save namespace and all answers are preserved. The book clue explicitly distinguishes its number mapping from the painting order. Desktop uses the original room image.
